@@ -1,0 +1,26 @@
+Order & Revenue Insights:
+Which are the top 3 cities with the highest number of orders?
+What are the top 3 products generating the highest sales revenue in the last quarter?
+What percentage of total sales comes from repeat customers compared to first-time buyers?
+Which are the top 5 user segments contributing to overall revenue?
+
+
+Customer & Behavioral Analysis:
+Which user segment (e.g., age group or region or city) has the highest average order value?
+How do seasonal trends impact sales volume and average order value across different product categories?
+Analyze the reasons behind the drop in sales in March 2025 /////
+
+Operational & Performance Metrics:
+What is the trend in average order value over the past year for the top 3 cities?
+What are the total sales amounts for each month in the last 12 months?
+
+
+Customer Journey & Conversion Insights:
+Which product bundles have the highest likelihood of being purchased together, and how does this vary by user segment?
+Which product experienced the highest sales growth in the past 6 months?
+
+
+Additional Testing Questions:
+How do average order volumes differ between the top 3 cities and the bottom 3 cities?
+What is the distribution of payment methods for orders above $500?
+Which day of the week has the highest number of orders, and how does it compare to the lowest?
