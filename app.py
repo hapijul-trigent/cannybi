@@ -65,10 +65,6 @@ if not st.session_state.authenticated:
     # Load credentials from config
     credentials = load_credentials()
 
-    with title:
-        # st.title("💬 CannyBI")
-        st.markdown('<h1 class="custom-title">💬 CannyBI v0.1</h1>', unsafe_allow_html=True)
-
     # Login Form
     _,  login_col, _ = st.columns([1, 1, 1])
     with login_col:
@@ -88,7 +84,9 @@ if not st.session_state.authenticated:
 
 # **Only show chatbot if authenticated**
 if st.session_state.authenticated:
-
+    with title:
+        # st.title("💬 CannyBI")
+        st.markdown('<h1 class="custom-title">💬 CannyBI v0.1</h1>', unsafe_allow_html=True)
     with username:
         st.markdown(f'<div class="user-info">{st.session_state.username.title()}</div>', unsafe_allow_html=True)
     
