@@ -30,7 +30,7 @@ load_dotenv()
 
 # Initialize Components
 GPT4V_KEY = os.getenv("GPT4V_KEY")
-ENDPOINT = "https://genai-trigent-openai.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-02-15-preview"
+ENDPOINT = os.getenv("GPT_ENDPOINT")
 request_handler = GPTRequestHandler(api_key=GPT4V_KEY, endpoint=ENDPOINT)
 query_intent_classifier = QueryIntentClassifier(request_handler=request_handler)
 sql_reasoning_generator = SQLQueryReasoningGenerator(request_handler=request_handler)

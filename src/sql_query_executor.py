@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 from typing import Dict, Any, List
 load_dotenv()
 
+# LOAD DATABSE CREDS
+
 
 class SQLQueryExecutor:
     """Executes generated SQL queries and manages database connections."""
@@ -24,10 +26,10 @@ class SQLQueryExecutor:
         """
         # Database configuration
         db_config = {
-            "host": "159.203.27.88",
-            "user": "cpcdoadmin",
-            "password": 'Yq5.s{2GJ<"*c`y9',
-            "database": "canprevcommons3_stg",
+            "host": os.getenv("DB_HOST"),
+            "user": os.getenv("DB_USER"),
+            "password":  os.getenv("DB_PASSWORD"),
+            "database": os.getenv("DB_NAME"),
             "port": int(os.getenv("DB_PORT", 3306)),
             "cursorclass": pymysql.cursors.DictCursor
         }
