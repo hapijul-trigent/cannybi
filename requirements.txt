@@ -1,2 +1,10 @@
-requests
-pandas
+bcrypt==4.3.0
+matplotlib==3.10.1
+numpy==2.2.3
+pandas==2.2.3
+pillow==11.1.0
+PyMySQL==1.1.1
+python-dotenv==1.0.1
+requests==2.32.3
+seaborn==0.13.2
+streamlit==1.43.2
