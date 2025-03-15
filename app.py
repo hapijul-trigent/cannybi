@@ -54,9 +54,7 @@ styles.apply_styles()
 
 
 title, username, logout = st.columns([4, 3, 1])
-with title:
-    # st.title("💬 CannyBI")
-    st.markdown('<h1 class="custom-title">💬 CannyBI v0.1</h1>', unsafe_allow_html=True)
+
 
 
 # Authentication Logic
@@ -67,6 +65,10 @@ if not st.session_state.authenticated:
     # Load credentials from config
     credentials = load_credentials()
 
+    with title:
+    # st.title("💬 CannyBI")
+    st.markdown('<h1 class="custom-title">💬 CannyBI v0.1</h1>', unsafe_allow_html=True)
+    
     # Login Form
     _,  login_col, _ = st.columns([1, 1, 1])
     with login_col:
