@@ -66,9 +66,9 @@ if not st.session_state.authenticated:
     credentials = load_credentials()
 
     with title:
-    # st.title("💬 CannyBI")
-    st.markdown('<h1 class="custom-title">💬 CannyBI v0.1</h1>', unsafe_allow_html=True)
-    
+        # st.title("💬 CannyBI")
+        st.markdown('<h1 class="custom-title">💬 CannyBI v0.1</h1>', unsafe_allow_html=True)
+
     # Login Form
     _,  login_col, _ = st.columns([1, 1, 1])
     with login_col:
