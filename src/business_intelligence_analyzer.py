@@ -69,15 +69,13 @@ class BusinessIntelligenceAnalyzer:
 
         if response:
             try:
-                print(response['choices'][0]['message']['content'])
-
                 parsed_response = json.loads(response['choices'][0]['message']['content'][7:-3])
                 if isinstance(parsed_response, dict) and "business_analysis" in parsed_response:
                     return parsed_response  # Ensures valid JSON format
                 else:
-                    logger.error("Invalid JSON structure received from AI.")
+                    logger.error("BusinessIntelligenceAnalyzer :: Invalid JSON structure received from AI.")
             except (json.JSONDecodeError, KeyError) as e:
-                logger.error(f"Error parsing AI response: {e}")
+                logger.error(f"BusinessIntelligenceAnalyzer :: Error parsing AI response: {e} :: {response['choices'][0]['message']['content']}")
 
         return {"sql_query_steps": sql_query_steps, "business_analysis": {"summary": "Error occurred", "recommendations": [], "chart-python-code": ""}}
 

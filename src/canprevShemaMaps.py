@@ -1,5 +1,5 @@
 schema_dictionary = {
-    "sales_report": """### Table: sales_report
+    "sales": """### Table: sales_report
 #### Purpose:
 Tracks sales transactions with order, product, account, pricing, tax, and shipment details.
 

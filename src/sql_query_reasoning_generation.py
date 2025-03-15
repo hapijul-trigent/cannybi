@@ -31,7 +31,7 @@ class SQLQueryReasoningGenerator:
             ],
             "temperature": 0.3,
             "top_p": 0.95,
-            "max_tokens": 1000
+            "max_tokens": 2000
         }
 
         response = self.request_handler.send_request(payload)
@@ -40,6 +40,6 @@ class SQLQueryReasoningGenerator:
             try:
                 return json.loads(response['choices'][0]['message']['content'][7:-3])
             except (json.JSONDecodeError, KeyError) as e:
-                logger.error(f"Error parsing GPT response: {e}")
+                logger.error(f"SQLQueryReasoningGenerator :: Error parsing GPT response: {e}")
 
         return {"reasoning_plan": "Error occurred"}

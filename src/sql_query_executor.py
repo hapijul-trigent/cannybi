@@ -24,10 +24,10 @@ class SQLQueryExecutor:
         """
         # Database configuration
         db_config = {
-            "host": "sql12.freesqldatabase.com",
-            "user": "sql12766815",
-            "password": "ZvPV8XPsBs",
-            "database": "sql12766815",
+            "host": "159.203.27.88",
+            "user": "cpcdoadmin",
+            "password": 'Yq5.s{2GJ<"*c`y9',
+            "database": "canprevcommons3_stg",
             "port": int(os.getenv("DB_PORT", 3306)),
             "cursorclass": pymysql.cursors.DictCursor
         }

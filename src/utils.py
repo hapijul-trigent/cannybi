@@ -56,7 +56,7 @@ def display_and_pin_charts(chart_dir="chart", pinned_dir="pinned_folder"):
                     chart_path = os.path.join(chart_dir, chart)
                     
                     with cols[i % 2]:  # Distribute images across 2 columns
-                        st.image(chart_path, caption=f"📈 {chart.replace('_', ' ').title()}", use_column_width=True)
+                        st.image(chart_path, caption=f"📈 {chart.replace('_', ' ').title()}", use_container_width=True)
 
                         # Add "Pin" button for each chart
                         if st.button(f"📌 Pin {chart}", key=f"pin_{i}"):

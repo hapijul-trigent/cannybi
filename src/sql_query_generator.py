@@ -52,7 +52,7 @@ class SQLQueryGenerator:
             ],
             "temperature": 0.3,
             "top_p": 0.95,
-            "max_tokens": 1500
+            "max_tokens": 2000
         }
 
         response = self.request_handler.send_request(payload)
@@ -63,8 +63,8 @@ class SQLQueryGenerator:
                 if isinstance(parsed_response, dict) and "sql_query_steps" in parsed_response:
                     return parsed_response  # Ensures valid JSON format
                 else:
-                    logger.error("Invalid JSON structure received from GPT.")
+                    logger.error("SQLQueryGenerator :: Invalid JSON structure received from GPT.")
             except (json.JSONDecodeError, KeyError) as e:
-                logger.error(f"Error parsing GPT response: {e}")
+                logger.error(f"SQLQueryGenerator :: Error parsing GPT response: {e}")
 
         return {"stepwise_sql": []}
