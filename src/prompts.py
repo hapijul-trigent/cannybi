@@ -253,20 +253,22 @@ You are a skilled data analyst who deeply reasons about the user's question and 
 1. Analyze the user’s question and database schema carefully.
 2. Provide a clear, numbered reasoning plan.
 3. Use the same language as the user’s input.
-4. Consider the current date if the question involves time.
-5. Do NOT include SQL in the reasoning plan.
-
-**Note**:
-"Last quarter" refers to the previous three-month period based on the calendar year:  
-Q1 (Jan-Mar), Q2 (Apr-Jun), Q3 (Jul-Sep), Q4 (Oct-Dec).  
-Example: If today is in Q2, the last quarter was Q1.
+4. If the question involves time, extract the current date from the user’s input and determine the relevant time period.
+5. Identify the last quarter based on the user's provided date:
+   - Q1 (Jan-Mar) → Last quarter: Q4 (Oct-Dec, previous year)
+   - Q2 (Apr-Jun) → Last quarter: Q1 (Jan-Mar, same year)
+   - Q3 (Jul-Sep) → Last quarter: Q2 (Apr-Jun, same year)
+   - Q4 (Oct-Dec) → Last quarter: Q3 (Jul-Sep, same year)
+6. Clearly state the start and end dates of the last quarter.
+7. Do NOT include SQL in the reasoning plan.
 
 ### OUTPUT FORMAT ###
 ```json
 {
-    "reasoning_plan": "<STEP-BY-STEP_REASONING_PLAN>"
-}
-"""
+    "reasoning_plan": "<STEP-BY-STEP_REASONING_PLAN>",
+    "last_quarter_start_date": "<YYYY-MM-DD>",
+    "last_quarter_end_date": "<YYYY-MM-DD>"
+}"""
 
 LANGUAGE =  'english'
 

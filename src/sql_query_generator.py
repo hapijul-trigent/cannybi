@@ -36,14 +36,32 @@ class SQLQueryGenerator:
         Returns:
         - Dict[str, Any]: JSON response containing all SQL queries mapped to reasoning steps.
         """
+
+        # Get current date in YYYY-MM-DD format
+        timestamp = time.time()
+        current_date = time.strftime("%Y-%m-%d", time.localtime(timestamp))  
+
+        # Generate reasoning text from reasoning steps
         reasoning_text = "\n".join([f"{i+1}. {step}" for i, step in enumerate(reasoning_steps)])
 
         user_prompt = (
             f"### DATABASE SCHEMA ###\n{schema}\n\n"
             f"### QUESTION ###\nUser's Question: {query}\n"
-            f"Current Time: {current_time}\nLanguage: {language}\n\n"
-            f"### REASONING STEPS ###\n{reasoning_text}\n\n"
+            f"Current Date: {current_date}\nLanguage: {language}\n\n"
+            "### REASONING STEPS ###\n"
+            "1. Analyze the user’s question and identify relevant database fields.\n"
+            "2. Determine if the query requires filtering by time.\n"
+            "3. If time-based, extract the current date and calculate the last quarter’s date range:\n"
+            "   - Q1 (Jan-Mar) → Last quarter: Q4 (Oct-Dec, previous year)\n"
+            "   - Q2 (Apr-Jun) → Last quarter: Q1 (Jan-Mar, same year)\n"
+            "   - Q3 (Jul-Sep) → Last quarter: Q2 (Apr-Jun, same year)\n"
+            "   - Q4 (Oct-Dec) → Last quarter: Q3 (Jul-Sep, same year)\n"
+            "4. Construct the SQL query with the appropriate conditions for filtering, aggregation, and ordering.\n"
+            "5. Ensure the query is optimized for performance (e.g., using indexed fields, avoiding unnecessary joins).\n\n"
+            f"{reasoning_text}\n"
         )
+
+
 
         payload = {
             "messages": [
