@@ -1,4 +1,4 @@
-from  src.request_handler import GPTRequestHandler
+from  src.agents.request_handler import GPTRequestHandler
 import json
 import logging
 from typing import Dict, Any

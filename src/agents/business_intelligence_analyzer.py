@@ -3,8 +3,8 @@ import logging
 import time
 from datetime import datetime
 from typing import Dict, Any, List
-from src.request_handler import GPTRequestHandler
-
+from src.agents.request_handler import GPTRequestHandler
+from pprint import pprint
 logger = logging.getLogger(__name__)
 
 
@@ -32,33 +32,35 @@ class BusinessIntelligenceAnalyzer:
         Returns:
         - Dict[str, Any]: JSON response containing analysis, insights, and Python visualization code.
         """
+        from decimal import Decimal
+
+        # Lambda function for recursively converting Decimals to float
+        # Lambda function for recursively converting Decimal to float
+        convert_decimal_recursive = lambda obj: (
+            float(obj) if isinstance(obj, Decimal) else
+            [convert_decimal_recursive(i) for i in obj] if isinstance(obj, list) else
+            {k: convert_decimal_recursive(v) for k, v in obj.items()} if isinstance(obj, dict) else
+            obj
+        )
         sql_query_steps = sql_query_steps_result.get("sql_query_steps", [])
 
         # Convert SQL query results into JSON format for AI processing
-        # formatted_queries = json.dumps(sql_query_steps, indent=4)
+        timestamp = time.time()
+        current_date = time.strftime("%Y-%m-%d", time.localtime(timestamp))
+        try:
+           formatted = json.dumps(convert_decimal_recursive(sql_query_steps), indent=4)
+        except Exception as e:
+            logger.error(f"Error in JSON conversion: {e}")
+            formatted = str(sql_query_steps)
 
         user_prompt = (
-            f"### SQL QUERY RESULTS ###\n{sql_query_steps}\n\n"
-            "Analyze the results as a Business Intelligence (BI) expert.\n"
-            "- Provide key business insights.\n"
-            "- Summarize findings across all SQL queries.\n"
-            "- Suggest strategic recommendations for business improvement.\n"
-            "- Generate Python visualization code using seaborn & matplotlib, and save inside chart folder with name chart.png.\n"
-            "Return output as structured JSON in the format:\n"
-            "{\n"
-            '    "sql_query_steps": [...],\n'
-            '    "business_analysis": {\n'
-            '        "summary": "<Overall BI interpretation>",\n'
-            '        "recommendations": ["<Recommendation 1>", "<Recommendation 2>", "<Recommendation 3>"],\n'
-            '        "chart-python-code": "<Seaborn & Matplotlib Python Code>"\n'
-            "    }\n"
-            "}"
+            f"### SQL QUERY RESULTS ###\n{formatted}"
         )
 
         payload = {
             "messages": [
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f'Current Timestamp: {datetime.now()}. {user_prompt}'}
+                {"role": "user", "content": f'Current Timestamp: {current_date}. {user_prompt}'}
             ],
             "temperature": 0.3,
             "top_p": 0.95,

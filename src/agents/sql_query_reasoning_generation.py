@@ -2,7 +2,7 @@ import json, time
 import logging
 import time
 from typing import Dict, Any
-from src.request_handler import GPTRequestHandler
+from src.agents.request_handler import GPTRequestHandler
 
 logger = logging.getLogger(__name__)
 
@@ -23,13 +23,6 @@ class SQLQueryReasoningGenerator:
             f"### DATABASE SCHEMA ###\n{schema}\n\n"
             f"### QUESTION ###\nUser's Question: {query}\n"
             f"Current Date: {current_date}\nLanguage: {language}\n\n"
-            "Think step by step and provide a structured reasoning plan.\n"
-            "If the question involves time, extract the provided current date and determine the last quarter’s date range:\n"
-            "  - Q1 (Jan-Mar) → Last quarter: Q4 (Oct-Dec, previous year)\n"
-            "  - Q2 (Apr-Jun) → Last quarter: Q1 (Jan-Mar, same year)\n"
-            "  - Q3 (Jul-Sep) → Last quarter: Q2 (Apr-Jun, same year)\n"
-            "  - Q4 (Oct-Dec) → Last quarter: Q3 (Jul-Sep, same year)\n"
-            "Clearly state the start and end dates of the last quarter in the reasoning plan."
         )
 
         payload = {

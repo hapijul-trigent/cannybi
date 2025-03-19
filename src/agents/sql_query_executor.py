@@ -5,8 +5,6 @@ from dotenv import load_dotenv
 from typing import Dict, Any, List
 load_dotenv()
 
-# LOAD DATABSE CREDS
-
 
 class SQLQueryExecutor:
     """Executes generated SQL queries and manages database connections."""

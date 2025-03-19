@@ -14,17 +14,20 @@ def display_refrence_table(result):
     Returns:
     - None (Displays DataFrame in Streamlit)
     """
-    # Convert to DataFrame
-    df = pd.DataFrame(result)
+    try:
+        # Convert to DataFrame
+        df = pd.DataFrame(result)
 
-    # Display DataFrame in Streamlit
-    st.subheader("📊 Reference Table")
-    st.dataframe(df, use_container_width=True, hide_index=True)
+        # Display DataFrame in Streamlit
+        st.subheader("📊 Reference Table")
+        st.dataframe(df, use_container_width=True, hide_index=True)
+    except Exception as e:
+        st.error(f"Error displaying reference table: {e}")
 
 
 
 
-def display_and_pin_charts(chart_dir="chart", pinned_dir="pinned_folder"):
+def display_and_pin_charts(chart_dir="charts", pinned_dir="pinned_charts"):
     """
     Displays charts from the specified directory and allows users to pin images to a pinned folder.
     

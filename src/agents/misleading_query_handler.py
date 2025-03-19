@@ -2,8 +2,8 @@ import json
 import logging
 from typing import Dict, Any
 from textwrap import dedent
-from src.request_handler import GPTRequestHandler
-from src.prompts import SYTEM_PROMPT_MISLEADING_QUERY_SUGGESTION
+from src.agents.request_handler import GPTRequestHandler
+from src.agents.prompts import SYTEM_PROMPT_MISLEADING_QUERY_SUGGESTION
 
 logger = logging.getLogger(__name__)
 

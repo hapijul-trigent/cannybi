@@ -2,7 +2,7 @@ import json
 import logging
 import time
 from typing import Dict, Any, List
-from src.request_handler import GPTRequestHandler
+from src.agents.request_handler import GPTRequestHandler
 
 logger = logging.getLogger(__name__)
 

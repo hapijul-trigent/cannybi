@@ -1,5 +1,5 @@
 from ollama import chat
-from src import prompts
+from src.agents import prompts
 sql_query_results = """'result': [{'City': 'North Melissaport',
                                   'NumberOfSales': 213},
                                  {'City': 'North Gregoryland',
