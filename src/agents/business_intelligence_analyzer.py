@@ -21,7 +21,7 @@ class BusinessIntelligenceAnalyzer:
         """
         self.request_handler = request_handler
 
-    def analyze_results(self, system_prompt: str, sql_query_steps_result: Dict[str, Any]) -> Dict[str, Any]:
+    def analyze_results(self, system_prompt: str, sql_query_steps_result: Dict[str, Any], user_question = str) -> Dict[str, Any]:
         """
         Generates business insights, visualization code, and strategic recommendations.
 
@@ -54,7 +54,7 @@ class BusinessIntelligenceAnalyzer:
             formatted = str(sql_query_steps)
 
         user_prompt = (
-            f"### SQL QUERY RESULTS ###\n{formatted}"
+            f"User Question:{user_question}\n### SQL QUERY RESULTS ###\n{formatted}"
         )
 
         payload = {
@@ -62,7 +62,7 @@ class BusinessIntelligenceAnalyzer:
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": f'Current Timestamp: {current_date}. {user_prompt}'}
             ],
-            "temperature": 0.3,
+            "temperature": 0.2,
             "top_p": 0.95,
             "max_tokens": 4000
         }

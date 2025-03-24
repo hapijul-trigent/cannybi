@@ -387,6 +387,7 @@ if st.session_state.authenticated:
 
                     with st.spinner("Executing Queries..."):
                         query_results = sql_executor.execute_queries(sql_query["sql_query_steps"])
+                        st.write(query_results)
                         sql_executor.close_connection()
                 except Exception as e:
                     st.toast(f"Query execution failed: {e}")
@@ -394,14 +395,16 @@ if st.session_state.authenticated:
                     with st.spinner("Fixing Queries..."):
                         fixed_queries = sql_query_fixer.fix_sql_errors(intent_analysis['rephrased_question'], query_results)
                         query_results = sql_executor.execute_queries(fixed_queries)
+                        st.write(query_results)
 
                 try:
                     with st.spinner("Analyzing ..."):
-                        bi_analysis_result = bi_analyzer.analyze_results(SYSTEM_PROMPT_BI_ANALYSIS, query_results)
+                        bi_analysis_result = bi_analyzer.analyze_results(SYSTEM_PROMPT_BI_ANALYSIS, query_results, user_question=intent_analysis['rephrased_question'])
                 except Exception as e:
                     st.toast(f"Analysis failed: {e}")
 
                 chart_code = bi_analysis_result["business_analysis"].get("chart-python-code", None)
+                
                 if chart_code:
                     try:
                         exec_globals = {}

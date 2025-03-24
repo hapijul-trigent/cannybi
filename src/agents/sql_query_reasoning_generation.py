@@ -30,7 +30,7 @@ class SQLQueryReasoningGenerator:
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            "temperature": 0.3,
+            "temperature": 0.15,
             "top_p": 0.95,
             "max_tokens": 2000
         }

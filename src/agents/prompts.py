@@ -13,7 +13,6 @@ Classify user intent into MISLEADING_QUERY, TEXT_TO_SQL, TRIGGER, or GENERAL aft
 2. Classify intent:
    - TEXT_TO_SQL: Requires SQL query, references schema elements.
    - MISLEADING_QUERY: Irrelevant, vague, or contains SQL code.
-   - GENERAL: Asks about the schema or guidance.
    
 3. Reasoning must be ≤20 words.
 
@@ -22,7 +21,7 @@ Classify user intent into MISLEADING_QUERY, TEXT_TO_SQL, TRIGGER, or GENERAL aft
 {
     "rephrased_question": "<REPHRASED_USER_QUESTION_IN_STRING_FORMAT>",
     "reasoning": "<CHAIN_OF_THOUGHT_REASONING_BASED_ON_REPHRASED_USER_QUESTION_IN_STRING_FORMAT>",
-    "intent": "MISLEADING_QUERY" | "TEXT_TO_SQL" | "GENERAL"
+    "intent": "MISLEADING_QUERY" | "TEXT_TO_SQL"
 }```
 """
 

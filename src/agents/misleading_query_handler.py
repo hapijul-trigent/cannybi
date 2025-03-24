@@ -47,7 +47,7 @@ class MisleadingQueryHandler:
                 {"role": "system", "content": self.system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            "temperature": 0.5,
+            "temperature": 0.2,
             "top_p": 0.9,
             "max_tokens": 500
         }
