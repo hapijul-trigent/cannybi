@@ -1,4 +1,5 @@
 from ollama import chat
+from ollama import ChatResponse
 from src.agents import prompts
 sql_query_results = """[{"reason":"Calculate the average payment processing time for each payment method in the order_payments table for the last quarter (Q1 2025).","query":"SELECT payment_type_id, AVG(TIMESTAMPDIFF(SECOND, created_at, updated_at)) AS avg_processing_time_seconds FROM order_payments WHERE created_at >= '2025-01-01' AND created_at < '2025-04-01' GROUP BY payment_type_id ORDER BY avg_processing_time_seconds;","result":[{"payment_type_id":5,"avg_processing_time_seconds":"Decimal('7.6250')"},{"payment_type_id":3,"avg_processing_time_seconds":"Decimal('17036.7895')"},{"payment_type_id":2,"avg_processing_time_seconds":"Decimal('59615.5000')"},{"payment_type_id":1,"avg_processing_time_seconds":"Decimal('275194.8421')"}]}]"""
 user_prompt = (
@@ -18,8 +19,8 @@ user_prompt = (
             "}"
         )
 
-stream = chat(
-    model="gemma3:1b",
+stream: ChatResponse = chat(
+    model="gemma3",
     messages=[
         {"role": "system", "content": prompts.SYSTEM_PROMPT_BI_ANALYSIS},
         {"role": "user", "content": user_prompt}
@@ -27,4 +28,4 @@ stream = chat(
     stream=True,
 )
 for chunk in stream:
-    print(chunk["message"]["content"], end="", flush=True)
+    print(chunk.message.content, end="", flush=True)

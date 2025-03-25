@@ -677,7 +677,7 @@ Analyze SQL query results, extract key insights concisely, provide a structured 
 3. **Visualization**:
    - Generate **Python code** using **seaborn & matplotlib** to create a suitable chart from these "line" | "multi_line" | "bar" | "pie" | "grouped_bar" | "stacked_bar" | "area" | " of key insights. 
    - Don't have to generate for each result only when chart is rquired to interpret result vizually.
-   - Save chart or charts into `chart' folder name meaningfully.
+   - Save chart or charts into `charts' folder name meaningfully.
    - do not use plt.show() in code on save is fine.
 
 ### OUTPUT FORMAT (Valid JSON) ###

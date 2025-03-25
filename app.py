@@ -244,7 +244,7 @@ import numpy as np
 import time
 from dotenv import load_dotenv
 from src.auth.hashing import authenticate  # Import authentication function
-from src.agents.request_handler import GPTRequestHandler
+from src.agents.request_handler import GPTRequestHandler, Gemma3RequestHandler
 from src.agents.sql_query_generator import SQLQueryGenerator
 from src.agents.sql_query_executor import SQLQueryExecutor
 from src.agents.business_intelligence_analyzer import BusinessIntelligenceAnalyzer
@@ -270,11 +270,12 @@ load_dotenv()
 GPT4V_KEY = os.getenv("GPT4V_KEY")
 ENDPOINT = os.getenv("GPT_ENDPOINT")
 request_handler = GPTRequestHandler(api_key=GPT4V_KEY, endpoint=ENDPOINT)
+gemma3_request_handler = Gemma3RequestHandler()
 query_intent_classifier = QueryIntentClassifier(request_handler=request_handler)
 sql_reasoning_generator = SQLQueryReasoningGenerator(request_handler=request_handler)
 sql_generator = SQLQueryGenerator(request_handler=request_handler)
 sql_executor = SQLQueryExecutor()
-bi_analyzer = BusinessIntelligenceAnalyzer(request_handler=request_handler)
+bi_analyzer = BusinessIntelligenceAnalyzer(request_handler=gemma3_request_handler)
 misleading_query_handler = MisleadingQueryHandler(request_handler=request_handler, system_prompt=SYTEM_PROMPT_MISLEADING_QUERY_SUGGESTION)
 sql_query_fixer = SQLQueryAutoFixer(request_handler=request_handler, database_schema=CONTEXT_SCHEMA)
 
@@ -320,7 +321,9 @@ if not st.session_state.authenticated:
                     st.toast("Invalid username or password")
 
 # **Only show chatbot if authenticated**
+
 if st.session_state.authenticated:
+    bi_analysis_result = {"business_analysis": {"summary": "Analysis not available.", "chart-python-code": None}}
     with title:
         st.markdown('<h1 class="custom-title">💬 CannyBI v0.1</h1>', unsafe_allow_html=True)
     with username:
