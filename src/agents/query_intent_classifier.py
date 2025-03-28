@@ -19,7 +19,7 @@ class QueryIntentClassifier:
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": f"Context: {context}\nQuestion: {user_input}"}
             ],
-            "temperature": 0.2,
+            "temperature": 0.1,
             "top_p": 0.95,
             "max_tokens": 1000
         }

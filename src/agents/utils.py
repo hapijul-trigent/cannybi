@@ -48,7 +48,7 @@ def display_and_pin_charts(chart_dir="charts", pinned_dir="pinned_charts"):
             chart_images = [f for f in os.listdir(chart_dir) if f.endswith((".png", ".jpg", ".jpeg"))]
 
             if not chart_images:
-                st.warning("⚠️ No chart images found in the directory.")
+                st.info("⚠️ No chart available.")
             else:
                 st.subheader("📊 Available Charts")
 

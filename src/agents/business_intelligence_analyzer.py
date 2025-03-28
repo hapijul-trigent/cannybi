@@ -62,7 +62,7 @@ class BusinessIntelligenceAnalyzer:
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": f'Current Timestamp: {current_date}. {user_prompt}'}
             ],
-            "temperature": 0.2,
+            "temperature": 0.15,
             "top_p": 0.95,
             "max_tokens": 4000
         }
