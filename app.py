@@ -152,14 +152,14 @@ if st.session_state.authenticated:
 
                     with st.spinner("Executing Queries..."):
                         query_results = sql_executor.execute_queries(sql_query["sql_query_steps"])
-                        st.write(query_results)
+                        # st.write(query_results)
                         sql_executor.close_connection()
                 except Exception as e:
                     st.toast("Auto-fixing query...")
                     with st.spinner("Fixing Queries..."):
                         fixed_queries = sql_query_fixer.fix_sql_errors(intent_analysis['rephrased_question'], query_results)
                         query_results = sql_executor.execute_queries(fixed_queries)
-                        st.write(query_results)
+                        # st.write(query_results)
 
                 try:
                     with st.spinner("Analyzing ..."):
