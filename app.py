@@ -30,8 +30,8 @@ load_dotenv()
 
 
 # Initialize Components
-GPT4V_KEY='51ba5d46601c477b844d3883af93463c'
-ENDPOINT = "https://genai-trigent-openai.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-02-15-preview"
+GPT4V_KEY=''
+ENDPOINT = ""
 request_handler = GPTRequestHandler(api_key=GPT4V_KEY, endpoint=ENDPOINT)
 query_intent_classifier = QueryIntentClassifier(request_handler=request_handler)
 sql_reasoning_generator = SQLQueryReasoningGenerator(request_handler=request_handler)
