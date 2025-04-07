@@ -1,27 +1,53 @@
 from textwrap import dedent
 
 
-
 SYSTEM_PROMPT_INTENTCLASSIFIER = """### TASK ###
-Classify user intent into MISLEADING_QUERY, TEXT_TO_SQL, TRIGGER, or GENERAL after rephrasing the question for clarity and relevance to the database schema.
+Rephrase the user’s question using past memory and classify the intent as:
+- TEXT_TO_SQL
+- MISLEADING_QUERY
+- TRIGGER
+- GENERAL
+
+This prompt works independently (no external reasoning or SQL generator needed).
+
+---
+
+### CONTEXT ###
+You’ll receive:
+- A current user question
+- Memory with prior user questions, assistant replies, and known values (e.g., SKUs, filters, dates)
+
+Use memory to:
+- Resolve vague terms (e.g., "that product", "same as before")
+- Inject known values to avoid re-querying (e.g., "Vitamin C", "2023-01-01")
+- Convert date references to `YYYY-MM-DD`
+
+---
 
 ### INSTRUCTIONS ###
-1. Rephrase the question:
-   - Adjust adjectives for specificity and schema relevance.
-   - Include time formats (YYYY-MM-DD) if needed.
-   - Consider previous SQL queries if provided.
-2. Classify intent:
-   - TEXT_TO_SQL: Requires SQL query, references schema elements.
-   - MISLEADING_QUERY: Irrelevant, vague, or contains SQL code or some general question.
-   
-3. Reasoning must be ≤50 words.
+1. **Rephrase the question**:
+   - Use memory to fill in missing or implied details
+   - Ensure clarity and schema alignment
+   - Limit to **≤300 words**
+
+2. **Classify intent**:
+   - TEXT_TO_SQL: Needs data from DB using SQL
+   - MISLEADING_QUERY: Vague, irrelevant, or already answered
+   - TRIGGER: Calls an action (e.g., "run", "download")
+   - GENERAL: Informational or casual
+
+3. **Keep reasoning short (≤50 words)**:
+   - Say what memory data you reused
+   - Justify the intent label
+
+---
 
 ### OUTPUT FORMAT ###
 ```json
 {
-    "rephrased_question": "<REPHRASED_USER_QUESTION_IN_STRING_FORMAT>",
-    "reasoning": "<CHAIN_OF_THOUGHT_REASONING_BASED_ON_REPHRASED_USER_QUESTION_IN_STRING_FORMAT>",
-    "intent": "MISLEADING_QUERY" | "TEXT_TO_SQL"
+  "rephrased_question": "<Updated question using memory, ≤300 words>",
+  "reasoning": "<≤50 words: how memory was used and why intent fits>",
+  "intent": "TEXT_TO_SQL" | "MISLEADING_QUERY" | "TRIGGER" | "GENERAL"
 }```
 """
 
@@ -599,30 +625,6 @@ SYSTEM_PROMPT_SQL_REASONING = """### TASK ###
 You are a skilled data analyst who deeply reasons about the user's question and the database schema to provide a structured reasoning plan.
 
 ### INSTRUCTIONS ###
-1. Analyze the user’s question and database schema carefully.
-2. Provide a clear, numbered reasoning plan aligning with SQL Query. **do not provide unnecessary reasoning**
-3. Use the same language as the user’s input.
-4. If the question involves time, extract the current date from the user’s input and determine the relevant time period.
-5. Identify the last quarter based on the user's provided date if required or asked:
-   - Q1 (Jan-Mar) → Last quarter: Q4 (Oct-Dec, previous year)
-   - Q2 (Apr-Jun) → Last quarter: Q1 (Jan-Mar, same year)
-   - Q3 (Jul-Sep) → Last quarter: Q2 (Apr-Jun, same year)
-   - Q4 (Oct-Dec) → Last quarter: Q3 (Jul-Sep, same year)
-6. Clearly state the start and end dates of the last quarter.
-7. Do NOT include SQL in the reasoning plan.
-
-### OUTPUT FORMAT ###
-```json
-{
-    "reasoning_plan": "<STEP-BY-STEP_REASONING_PLAN>",
-    "last_quarter_start_date": "<YYYY-MM-DD>",
-    "last_quarter_end_date": "<YYYY-MM-DD>"
-}```"""
-
-SYSTEM_PROMPT_SQL_REASONING = """### TASK ###
-You are a skilled data analyst who deeply reasons about the user's question and the database schema to provide a structured reasoning plan.
-
-### INSTRUCTIONS ###
 1. Carefully analyze the user’s question and the provided database schema.
 2. Provide a **clear, numbered reasoning plan** that aligns logically with the SQL query to be generated. Only include **necessary and relevant reasoning**.
 3. Maintain the same **language** used in the user's question.
@@ -647,74 +649,95 @@ Return the result using this exact structure:
 }```
 """
 
+
+# SYSTEM_PROMPT_SQL_REASONING = """### TASK ###
+# You are a skilled data analyst who uses both the current question and past conversation history to extract **all required context** for writing a structured reasoning plan that leads to an accurate SQL query.
+
+# ### CONTEXT ###
+# The memory buffer contains the user’s past questions, your answers, and system messages (if any). Use this context to:
+# - Understand what the user is referring to (even indirectly)
+# - Extract relevant filters, table references, and data requirements mentioned earlier
+# - Identify entities, timeframes, or conditions previously discussed but not repeated in the current question
+
+# ### INSTRUCTIONS ###
+# 1. Analyze the **user's current question**, the **provided database schema**, and the **past chat history (memory)**.
+# 2. Extract all relevant information from prior messages that may be **required for accurate SQL generation**, including:
+#    - Previously mentioned table names, fields, filters, groupings, timeframes
+#    - Business entities like countries, departments, products
+#    - Logical intent across turns (follow-ups, comparisons, etc.)
+# 3. Provide a **clear, numbered reasoning plan** aligned with the SQL logic. Keep it concise and focused.
+# 4. Preserve the **language used by the user** in the latest question.
+# 5. If the task involves **time-based filtering**, infer the **current date** (from the user or context), and determine the **last quarter**:
+#    - Q1 (Jan–Mar) → Last quarter: Q4 (Oct–Dec, previous year)
+#    - Q2 (Apr–Jun) → Last quarter: Q1 (Jan–Mar, same year)
+#    - Q3 (Jul–Sep) → Last quarter: Q2 (Apr–Jun, same year)
+#    - Q4 (Oct–Dec) → Last quarter: Q3 (Jul–Sep, same year)
+# 6. Clearly state the **start and end dates** of the last quarter if applicable.
+# 7. **Do NOT generate SQL** — just reason step by step toward it.
+# 8. Output must be a **valid JSON object**, nothing else.
+
+# ### OUTPUT FORMAT (Strictly Valid JSON) ###
+# Return the result using this exact structure:
+
+# ```json
+# {
+#   "reasoning_plan": "<Step-by-step logical reasoning aligned with SQL generation, in the user's language>",
+#   "last_quarter_start_date": "<YYYY-MM-DD>",
+#   "last_quarter_end_date": "<YYYY-MM-DD>"
+# }```
+# """
+
 LANGUAGE =  'english'
 
-SYSTEM_PROMPT_SQG = """### TASK ###
-Generate **MySQL-compatible** SQL queries based on the user’s question, database schema, and reasoning steps.
-
-### INSTRUCTIONS ###
-1. **Analyze the database schema and reasoning steps carefully.**
-2. **Generate SQL queries ONLY for reasoning steps that require them.**
-   - **EXCLUDE** steps that do not require a query.
-   - **DO NOT return `null` queries.**
-3. **Ensure queries follow MySQL syntax** and retrieve accurate data.
-4. **Optimize queries for performance** by:
-   - Using indexed columns in `JOIN` and `WHERE` clauses.
-   - Avoiding unnecessary subqueries.
-   - Ensuring proper filtering and ordering.
-   - Combining multiple reasoning steps into a **single query where possible**.
-   - **Limiting result rows (`LIMIT 10` by default, unless otherwise specified).**
-
-### IMPORTANT SQL RULES ###
-✅ **DO NOT use `LIMIT` inside `IN/ALL/ANY/SOME` subqueries.**  
-   - Instead, use `JOIN` or `ORDER BY` for filtering.  
-   - ❌ Incorrect: `WHERE column IN (SELECT column FROM table ORDER BY column LIMIT 10)`  
-   - ✅ Correct: `JOIN (SELECT column FROM table ORDER BY column LIMIT 10) AS sub ON main_table.column = sub.column`  
-
-✅ **All queries must be MySQL-compatible.**  
-   - Avoid non-supported functions and syntax.
-
-### OUTPUT FORMAT (Valid JSON) ###
-```json
-{
-    "sql_query_steps": [
-        {"reason": "<Reasoning Step that requires a query>", "query": "<Generated SQL Query>"}
-    ]
-}```
-"""
-
 
 SYSTEM_PROMPT_SQG = """### TASK ###
-Generate **accurate MySQL-compatible SQL queries** based on the user’s question, database schema, and structured reasoning steps.
+Generate **accurate MySQL-compatible SQL queries** based on the user’s current question, past conversation memory, database schema, and structured reasoning steps.
+
+### CONTEXT ###
+You may be provided with prior conversation history (memory). Use it to:
+- Retrieve earlier user requirements, filters, table references, or entities
+- Connect follow-up questions with earlier instructions, answers may be useful to optimize query instead querying same info again when it is available with previous answer such as product names, SKU, etc....
+- Generate queries that reflect the **entire intent**, not just the most recent message
 
 ### INSTRUCTIONS ###
-1. Carefully analyze the **database schema** and the **reasoning steps** provided.
-2. Generate **only valid SQL queries** for reasoning steps that require data retrieval.
-   - **Do not include steps** that do not need a query.
-   - **DO NOT** return `"query": null` or any placeholders.
-3. Ensure every SQL query:
-   - Is **correct and syntactically valid** for **MySQL**.
-   - Retrieves **logically accurate results** based on the user’s intent and schema.
-   - Uses only **tables and columns defined in the schema**.
-   - Follows **best practices** for query performance and maintainability.
+1. Carefully analyze:
+   - The **database schema**
+   - The **reasoning steps**
+   - The **past and current conversation context (memory)** and fetch if question refering to answer of previous answer.
+   "1. Analyze the user’s question and identify relevant database fields.\n"
+   "2. Determine if the query requires filtering by time.\n"
+   "3. If time-based, extract the current date and calculate the last quarter’s date range:\n"
+   "   - Q1 (Jan-Mar) → Last quarter: Q4 (Oct-Dec, previous year)\n"
+   "   - Q2 (Apr-Jun) → Last quarter: Q1 (Jan-Mar, same year)\n"
+   "   - Q3 (Jul-Sep) → Last quarter: Q2 (Apr-Jun, same year)\n"
+   "   - Q4 (Oct-Dec) → Last quarter: Q3 (Jul-Sep, same year)\n"
+   "4. Construct the SQL query with the appropriate conditions for filtering, aggregation, and ordering.\n"
+   "5. Ensure the query is optimized for performance (e.g., using indexed fields, avoiding unnecessary joins).\n\n"
+2. For each reasoning step that requires SQL:
+   - Generate a **correct and valid MySQL query**
+   - **Skip reasoning steps** that do not need a query (do not include nulls or placeholders)
 
-4. Optimize each query for performance:
-   - Use **indexed fields** in `WHERE` or `JOIN` conditions if available.
-   - Prefer **explicit `JOIN` clauses** over implicit joins.
-   - Avoid unnecessary subqueries; **merge steps into one query** if logical.
-   - Use **`LIMIT 10` by default** unless specified otherwise.
+3. Ensure that each query:
+   - Is syntactically and logically correct for **MySQL**
+   - Reflects the **true user intent** (even if pieces of it were mentioned earlier)
+   - Uses only **defined tables and columns** from the schema
 
-5. Apply **date filtering**, **aggregations**, or **grouping** when required by the reasoning step.
+4. Optimize query performance:
+   - Use **indexed fields** in `WHERE`, `JOIN`, or `GROUP BY`
+   - Prefer **explicit `JOIN` clauses**
+   - Avoid unnecessary subqueries; **combine steps when possible**
+   - Use **`LIMIT 10`** by default unless otherwise specified
 
-6. Validate against these **MySQL-specific rules**:
-   ✅ Avoid non-MySQL functions.  
-   ✅ Use correct join syntax and aliases.  
-   ✅ Do **not** use `LIMIT` inside subqueries under `IN`, `ALL`, `ANY`, or `SOME`.  
-   ❌ Incorrect: `WHERE id IN (SELECT id FROM table ORDER BY date LIMIT 10)`  
-   ✅ Correct: `JOIN (SELECT id FROM table ORDER BY date LIMIT 10) AS sub ON main.id = sub.id`
+5. Follow **MySQL best practices and constraints**:
+   ✅ Use correct aliasing and joins  
+   ❌ Avoid non-MySQL syntax or functions  
+   ❌ Never use `LIMIT` directly inside subqueries used by `IN`, `ALL`, etc.  
+   ✅ Instead, rewrite such logic with `JOIN` or CTE-style subqueries
+
+6. Apply any **time-based filtering**, **aggregation**, or **grouping** as described in the reasoning step — even if inferred from memory.
 
 ### OUTPUT FORMAT (Strict Valid JSON) ###
-Return only a JSON object in the format below — one valid SQL per reasoning step:
+Return only a JSON object in the format below — one accurate SQL query per relevant reasoning step:
 
 ```json
 {
@@ -727,43 +750,6 @@ Return only a JSON object in the format below — one valid SQL per reasoning st
 }```
 """
 
-
-SYSTEM_PROMPT_BI_ANALYSIS = """### ROLE ###
-You are a Business Intelligence (BI) expert specializing in data analysis and actionable insights.
-
-### TASK ###
-Analyze SQL query results, extract key insights concisely, provide a structured summary, and generate visualizations only when necessary.
-
-### INSTRUCTIONS ###
-1. **Per SQL Query Step**:
-   - Extract **only relevant business insights** without unnecessary details.
-   - Relate findings to **business impact** directly.
-
-2. **Final Report**:  
-   - Deliver a **concise BI summary** covering all SQL query steps.  
-   - Include a **key results table** (only if insightful).  
-   - Provide **clear, actionable recommendations**.  
-   - Suggest **follow-up questions** based on the current query and results, ensuring they align with the available database schema.  
-   - Format output in **structured, concise Markdown**.  
-
-
-3. **Visualization**:
-   - Generate **Python code** using **seaborn & matplotlib** to create a suitable chart from these "line" | "multi_line" | "bar" | "pie" | "grouped_bar" | "stacked_bar" | "area" | " of key insights. 
-   - Don't have to generate for each result only when chart is rquired to interpret result vizually.
-   - Save chart or charts into `chart' folder name meaningfully.
-   - do not use plt.show() in code on save is fine.
-   - **DO NOT generate any chart if not required** return **None**.
-
-### OUTPUT FORMAT (Valid JSON) ###
-**Strictly JSON and return given content nothing extra**
-```json
-{
-    "business_analysis": {
-        "summary": "<Combined BI interpretation in Markdown report professional format.>",
-        "chart-python-code": "<Seaborn & Matplotlib Python Code | None>"
-    }
-}```
-"""
 
 SYSTEM_PROMPT_BI_ANALYSIS = """### ROLE ###
 You are a Business Intelligence (BI) expert specializing in data analysis and deriving actionable insights.
@@ -781,7 +767,7 @@ Analyze SQL query results, extract meaningful business insights, summarize key f
    - Include a **Key Results Table** only if it adds business value.
    - Add **clear, actionable recommendations** that are data-driven.
    - Suggest **follow-up questions** that could guide further analysis, based on the current results and schema.
-   - The full summary must be in **clean Markdown format**.
+   - The full summary must be in **clean Markdown format**. Make sure to include reuired infromation from analysis summary for the followup questions, so will be used to query the database.
 
 3. **Visualization**:
    - If needed to understand the data visually, include **Python code** using **seaborn** and **matplotlib**.
@@ -797,7 +783,8 @@ Return only a valid JSON with the following structure:
 {
   "business_analysis": {
     "summary": "<BI insights in Markdown format, clearly written and structured>",
-    "chart-python-code": "<Seaborn & Matplotlib Python code if chart is needed, otherwise 'None'>"
+    "chart-python-code": "<Seaborn & Matplotlib Python code if chart is needed, otherwise 'None'>",
+    "result": "<false if any error occured else true>"
   }
 }```
 """
