@@ -20,7 +20,8 @@ class SQLQueryGenerator:
         self.request_handler = request_handler
 
     def generate_queries(
-        self, system_prompt: str, schema: str, query: str, reasoning_steps: List[str], current_time: str, language: str
+        self, system_prompt: str, schema: str, query: str, reasoning_steps: List[str], current_time: str, language: str,
+        chat_memory: str
     ) -> Dict[str, Any]:
         """
         Generates SQL queries for all reasoning steps in one GPT request and ensures a valid JSON response.
@@ -48,16 +49,8 @@ class SQLQueryGenerator:
             f"### DATABASE SCHEMA ###\n{schema}\n\n"
             f"### QUESTION ###\nUser's Question: {query}\n"
             f"Current Date: {current_date}\nLanguage: {language}\n\n"
-            "### REASONING STEPS ###\n"
-            "1. Analyze the user’s question and identify relevant database fields.\n"
-            "2. Determine if the query requires filtering by time.\n"
-            "3. If time-based, extract the current date and calculate the last quarter’s date range:\n"
-            "   - Q1 (Jan-Mar) → Last quarter: Q4 (Oct-Dec, previous year)\n"
-            "   - Q2 (Apr-Jun) → Last quarter: Q1 (Jan-Mar, same year)\n"
-            "   - Q3 (Jul-Sep) → Last quarter: Q2 (Apr-Jun, same year)\n"
-            "   - Q4 (Oct-Dec) → Last quarter: Q3 (Jul-Sep, same year)\n"
-            "4. Construct the SQL query with the appropriate conditions for filtering, aggregation, and ordering.\n"
-            "5. Ensure the query is optimized for performance (e.g., using indexed fields, avoiding unnecessary joins).\n\n"
+            f"### CHAT HISTORY PREVIOUS QUESTIONS AND ANSWERS ###\n{chat_memory}\n\n"
+            f"### REASONING STEPS ###\n"
             f"{reasoning_text}\n"
         )
 
@@ -68,7 +61,7 @@ class SQLQueryGenerator:
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            "temperature": 0.15,
+            "temperature": 0.1,
             "top_p": 0.95,
             "max_tokens": 2000
         }

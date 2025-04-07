@@ -26,6 +26,7 @@ from src.agents.prompts import (
     SYTEM_PROMPT_MISLEADING_QUERY_SUGGESTION
 )
 from src.agents.utils import display_refrence_table, display_and_pin_charts, display_pinned_charts
+from src.memory.manager import TokenLimitedMemoryBuffer
 from src.agents import styles
 
 load_dotenv()
@@ -41,7 +42,7 @@ sql_executor = SQLQueryExecutor()
 bi_analyzer = BusinessIntelligenceAnalyzer(request_handler=request_handler)
 misleading_query_handler = MisleadingQueryHandler(request_handler=request_handler, system_prompt=SYTEM_PROMPT_MISLEADING_QUERY_SUGGESTION)
 sql_query_fixer = SQLQueryAutoFixer(request_handler=request_handler, database_schema=CONTEXT_SCHEMA)
-
+memory_buffer = TokenLimitedMemoryBuffer(max_tokens=1000)
 CHART_DIR = 'charts'
 PINNED_CHART_DIR = 'pinned_charts'
 
@@ -122,13 +123,16 @@ if st.session_state.authenticated:
                 intent_analysis = query_intent_classifier.classify(
                     system_prompt=SYSTEM_PROMPT_INTENTCLASSIFIER,
                     context=CONTEXT_SCHEMA,
-                    user_input=user_question
+                    user_input=user_question,
+                    chat_memory=memory_buffer.get_context_markdown()
                 )
+                st.json(intent_analysis, expanded=False)
 
             if intent_analysis['intent'].lower() == 'misleading_query':
                 assistant_response = misleading_query_handler.suggest_better_questions(
                     reasoning=intent_analysis['reasoning'],
-                    user_question=intent_analysis["rephrased_question"]
+                    user_question=intent_analysis["rephrased_question"], 
+                    
                 )
             elif intent_analysis['intent'].lower() == 'general':
                 assistant_response = (
@@ -138,17 +142,20 @@ if st.session_state.authenticated:
                     "- *'How many customers placed an order last month?'*"
                 )
             else:
-                
+                st.markdown(memory_buffer.get_context_markdown())
                 try:
                     with st.spinner("Reasoning Optimal Query Plan..."):
                         reasoning = sql_reasoning_generator.generate_reasoning(
                             SYSTEM_PROMPT_SQL_REASONING, CONTEXT_SCHEMA, intent_analysis['rephrased_question'], LANGUAGE
                         )
+                        # st.code(reasoning["reasoning_plan"], language='json')
 
                     with st.spinner("Writing Query..."):
                         sql_query = sql_generator.generate_queries(
-                            SYSTEM_PROMPT_SQG, CONTEXT_SCHEMA, intent_analysis['rephrased_question'], reasoning, time.time(), LANGUAGE
+                            SYSTEM_PROMPT_SQG, CONTEXT_SCHEMA, intent_analysis['rephrased_question'], reasoning, time.time(), LANGUAGE,
+                            chat_memory= memory_buffer.get_context_markdown()
                         )
+                        # st.code(sql_query["sql_query_steps"], language='sql')
 
                     with st.spinner("Executing Queries..."):
                         query_results = sql_executor.execute_queries(sql_query["sql_query_steps"])
@@ -183,11 +190,13 @@ if st.session_state.authenticated:
         with st.chat_message("assistant"):
             st.markdown(bi_analysis_result['business_analysis']['summary'])
             with st.expander("📊 Reference Queries"):
-                for rs in query_results.get('sql_query_steps', None):
+                for rs in query_results.get('sql_query_steps', []):
                     if rs['result'] is not None:
                         st.markdown(f"**🔍 Reason :: {rs['reason']}**")
                         st.code(rs['query'], language='sql')
                         display_refrence_table(rs['result'])
-
+            if bi_analysis_result['business_analysis']['result']:
+                memory_buffer.add_message(role='User', content=user_question)
+                memory_buffer.add_message(role='Assistant', content=bi_analysis_result['business_analysis']['summary'])
             display_and_pin_charts(chart_dir=CHART_DIR, pinned_dir=PINNED_CHART_DIR)
             st.session_state.messages.append({"role": "assistant", "content": bi_analysis_result['business_analysis']['summary']})
